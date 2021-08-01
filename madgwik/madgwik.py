@@ -7,7 +7,7 @@ from quaternion import Quaternion
 class MadgwickAHRS:
     samplePeriod = 1/256
     quaternion = Quaternion(1, 0, 0, 0)
-    beta = 1
+    beta = 0.5
 
     def __init__(self, sampleperiod=None, quaternion=None, beta=None):
         """
@@ -42,21 +42,17 @@ class MadgwickAHRS:
         accelerometer /= norm(accelerometer)
 
         # Gradient descent algorithm corrective step
-        f = np.array([
-            2*(q[1]*q[3] - q[0]*q[2]) - accelerometer[0],
-            2*(q[0]*q[1] + q[2]*q[3]) - accelerometer[1],
-            2*(0.5 - q[1]**2 - q[2]**2) - accelerometer[2]
+        v = np.array([
+            2*(q[1]*q[3] - q[0]*q[2]),
+            2*(q[0]*q[1] + q[2]*q[3]),
+            2*(q[0]**2 - q[1]**2 - q[2]**2 + q[3]**3)
         ])
-        j = np.array([
-            [-2*q[2], 2*q[3], -2*q[0], 2*q[1]],
-            [2*q[1], 2*q[0], 2*q[3], 2*q[2]],
-            [0, -4*q[1], -4*q[2], 0]
-        ])
-        step = j.T.dot(f)
-        step /= norm(step)  # normalise step magnitude
+        error = np.cross(v, accelerometer)
+
+        ref = gyroscope - self.beta * error
 
         # Compute rate of change of quaternion
-        qdot = (q * Quaternion(0, gyroscope[0], gyroscope[1], gyroscope[2])) * 0.5 - self.beta * step.T
+        qdot = (q.__mul__(Quaternion(0, 0.5 * ref[0], 0.5 * ref[1], 0.5 * ref[2])))
 
         # Integrate to yield quaternion
         q += qdot * self.samplePeriod

@@ -6,6 +6,7 @@ class Quaternion:
     """
     A simple class implementing basic quaternion arithmetic.
     """
+
     def __init__(self, w_or_q, x=None, y=None, z=None):
         """
         Initializes a Quaternion object
@@ -59,7 +60,7 @@ class Quaternion:
     @staticmethod
     def from_angle_axis(rad, x, y, z):
         s = np.sin(rad / 2)
-        return Quaternion(np.cos(rad / 2), x*s, y*s, z*s)
+        return Quaternion(np.cos(rad / 2), x * s, y * s, z * s)
 
     def to_euler_angles(self):
         pitch = np.arcsin(2 * self[1] * self[2] + 2 * self[0] * self[3])
@@ -75,9 +76,11 @@ class Quaternion:
         return roll, pitch, yaw
 
     def to_euler123(self):
-        roll = np.arctan2(-2*(self[2]*self[3] - self[0]*self[1]), self[0]**2 - self[1]**2 - self[2]**2 + self[3]**2)
-        pitch = np.arcsin(2*(self[1]*self[3] + self[0]*self[1]))
-        yaw = np.arctan2(-2*(self[1]*self[2] - self[0]*self[3]), self[0]**2 + self[1]**2 - self[2]**2 - self[3]**2)
+        roll = np.arctan2(-2 * (self[2] * self[3] - self[0] * self[1]),
+                          self[0] ** 2 - self[1] ** 2 - self[2] ** 2 + self[3] ** 2)
+        pitch = np.arcsin(2 * (self[1] * self[3] + self[0] * self[1]))
+        yaw = np.arctan2(-2 * (self[1] * self[2] - self[0] * self[3]),
+                         self[0] ** 2 + self[1] ** 2 - self[2] ** 2 - self[3] ** 2)
         return roll, pitch, yaw
 
     def __mul__(self, other):
@@ -87,10 +90,14 @@ class Quaternion:
         :return:
         """
         if isinstance(other, Quaternion):
-            w = self._q[0]*other._q[0] - self._q[1]*other._q[1] - self._q[2]*other._q[2] - self._q[3]*other._q[3]
-            x = self._q[0]*other._q[1] + self._q[1]*other._q[0] + self._q[2]*other._q[3] - self._q[3]*other._q[2]
-            y = self._q[0]*other._q[2] - self._q[1]*other._q[3] + self._q[2]*other._q[0] + self._q[3]*other._q[1]
-            z = self._q[0]*other._q[3] + self._q[1]*other._q[2] - self._q[2]*other._q[1] + self._q[3]*other._q[0]
+            w = self._q[0] * other._q[0] - self._q[1] * other._q[1] - self._q[2] * other._q[2] - self._q[3] * other._q[
+                3]
+            x = self._q[0] * other._q[1] + self._q[1] * other._q[0] + self._q[2] * other._q[3] - self._q[3] * other._q[
+                2]
+            y = self._q[0] * other._q[2] - self._q[1] * other._q[3] + self._q[2] * other._q[0] + self._q[3] * other._q[
+                1]
+            z = self._q[0] * other._q[3] + self._q[1] * other._q[2] - self._q[2] * other._q[1] + self._q[3] * other._q[
+                0]
 
             return Quaternion(w, x, y, z)
         elif isinstance(other, numbers.Number):
@@ -127,3 +134,7 @@ class Quaternion:
 
     def __array__(self):
         return self._q
+
+    def rotate(self, another):
+        left = self.__mul__(another)
+        return left.__mul__(self.conj())
