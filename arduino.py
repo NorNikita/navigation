@@ -1,6 +1,10 @@
 import serial as ser
 
-filename = 'madgwik/acc_gyro.csv'
+"""
+скрипт для записи измерений акселерометров и гироскопов в файл ./algorithm/acc_gyro.csv
+"""
+
+filename = 'algorithm/acc_gyro.csv'
 
 port = '/dev/cu.usbmodem141101'  # '/dev/ttyACM0'
 arduino = ser.Serial(port, 9600, timeout=1)

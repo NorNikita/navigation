@@ -9,7 +9,7 @@ pd.options.mode.chained_assignment = None  # отключить warnings для 
 
 samplePeriod = 0.03  # 1 / 256
 
-# csv = pd.read_csv("./madgwik/straightLine.csv")
+# csv = pd.read_csv("./algorithm/straightLine.csv")
 csv = pd.read_csv("acc_gyro.csv")
 frame = pd.DataFrame(csv)
 
@@ -156,7 +156,7 @@ for index in range(len(start)):
     enum = np.array(range(1, indexEnd - indexStart))
     curr = [enum.T * driftRateX, enum.T * driftRateY, enum.T * driftRateZ]
 
-    # TODO
+    # TODO отрефачить
     for i in range(indexStart, indexEnd - 1):
         frame['driftX'][i] = curr[0][i - indexStart]
         frame['driftY'][i] = curr[1][i - indexStart]
