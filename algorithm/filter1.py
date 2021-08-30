@@ -44,7 +44,7 @@ filterCutOff = 0.001
 b, a = signal.butter(1, (2 * filterCutOff) / (1 / samplePeriod), btype='high')
 accMagnituteFilt = np.abs(signal.filtfilt(b, a, frame['accMagnitude']))
 
-filterCutOff = 5
+filterCutOff = 6
 b, a = signal.butter(1, (2 * filterCutOff) / (1 / samplePeriod), btype='low')
 accMagnituteFilt = signal.filtfilt(b, a, accMagnituteFilt)
 
@@ -56,14 +56,14 @@ frame['stationary'] = np.where(frame['accMagnitude_filter'] < 0.05, 1, 0)
 # строим график величины ускорения
 fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
 t = np.arange(len(frame['a_x']))
-ax1.plot(t, frame['accMagnitude'], label='accMagnitude')
+ax1.plot(t, frame['accMagnitude'], label='норма вектора ускорения')
 ax1.set_title('without filter')
 ax1.legend()
 ax1.axis([0, LENGTH, 0, 6])
 
 # график индикаторной функции где тело покоится, а где нет
-ax2.plot(t, accMagnituteFilt, label='magnitudeFiltered')
-ax2.plot(t, frame['stationary'], label='stationary')
+ax2.plot(t, accMagnituteFilt, label='фильрованая норма ускорения (полосовой фильтр Баттерворта)')
+ax2.plot(t, frame['stationary'], label='1 - покой, 0 - движение (индикаторная функция)')
 ax2.set_title('with filter')
 ax2.legend()
 ax2.axis([0, LENGTH, 0, 4])
@@ -105,7 +105,9 @@ for index in range(firstIndex, len(frame['time']) + firstIndex):
 # строим график ускорения в абс. с.к.
 fig1, (accel) = plt.subplots(1, 1, sharex=True)
 t = np.arange(len(frame['a_x']))
-accel.plot(t, frame['a_x'], t, frame['a_y'], t, frame['a_z'], linewidth=0.4)
+accel.plot(t, frame['a_x'], label='a_x', linewidth=0.5)
+accel.plot(t, frame['a_y'], label='a_y', linewidth=0.5)
+accel.plot(t, frame['a_z'], label='a_z', linewidth=0.5)
 accel.set_title('acceleration')
 accel.legend()
 plt.tight_layout()
@@ -187,18 +189,28 @@ for index in range(firstIndex, len(frame['time']) + firstIndex):
 
 fig2, (velocity) = plt.subplots(1, 1, sharex=True)
 t = np.arange(LENGTH)
-velocity.plot(t, frame['v_x'], t, frame['v_y'], t, frame['v_z'], linewidth=0.5)
+velocity.plot(t, frame['v_x'], label='v_x')
+velocity.plot(t, frame['v_y'], label='v_y')
+velocity.plot(t, frame['v_z'], label='v_z')
 velocity.set_title('velocity')
+velocity.set_xlabel('discrete time')
+velocity.legend()
 plt.tight_layout()
 
 trajectory = plt.figure().add_subplot(projection='3d')
 trajectory.plot(x, y, z, label='parametric curve')
-trajectory.legend()
+trajectory.set_xlabel('x')
+trajectory.set_ylabel('y')
+trajectory.set_zlabel('z')
 
 fig3, (coord) = plt.subplots(1, 1, sharex=True)
 t = range(len(frame['a_x']))
-coord.plot(t, x, t, y, t, z, linewidth=0.5)
+coord.plot(t, x, label='x', linewidth=0.5)
+coord.plot(t, y, label='y', linewidth=0.5)
+coord.plot(t, z, label='z', linewidth=0.5)
 coord.set_title('coordinates')
+coord.set_xlabel('discrete time')
+coord.legend()
 plt.tight_layout()
 
 plt.show()
