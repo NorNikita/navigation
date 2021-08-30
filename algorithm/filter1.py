@@ -202,6 +202,7 @@ trajectory.plot(x, y, z, label='parametric curve')
 trajectory.set_xlabel('x')
 trajectory.set_ylabel('y')
 trajectory.set_zlabel('z')
+trajectory.set_title('trajectory')
 
 fig3, (coord) = plt.subplots(1, 1, sharex=True)
 t = range(len(frame['a_x']))
