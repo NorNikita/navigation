@@ -10,7 +10,7 @@ pd.options.mode.chained_assignment = None  # отключить warnings для 
 samplePeriod = 0.03  # 1 / 256
 
 # csv = pd.read_csv("./algorithm/straightLine.csv")
-csv = pd.read_csv("acc_gyro.csv")
+csv = pd.read_csv("acc_gyro2.csv")
 frame = pd.DataFrame(csv)
 
 # чувсвительность настроена на диапазон -2g до 2g
@@ -23,7 +23,7 @@ frame["w_x"] = frame["w_x"].apply(lambda x: 125 * (x / 16384))
 frame["w_y"] = frame["w_y"].apply(lambda y: 125 * (y / 16384))
 frame["w_z"] = frame["w_z"].apply(lambda z: 125 * (z / 16384))
 
-startTime = 2  # 2
+startTime = 1  # 2
 stopTime = 14  # 26
 
 frame['time'] = [samplePeriod * index for index, val in enumerate(frame['Packet number'])]
@@ -51,7 +51,7 @@ accMagnituteFilt = signal.filtfilt(b, a, accMagnituteFilt)
 frame['accMagnitude_filter'] = accMagnituteFilt
 
 # интервалы где приборный трехгранник покоится относительно земли. 1 - покой, 0 - движение
-frame['stationary'] = np.where(frame['accMagnitude_filter'] < 0.05, 1, 0)
+frame['stationary'] = np.where(frame['accMagnitude_filter'] < 0.1, 1, 0)
 
 # строим график величины ускорения
 fig, (ax1, ax2) = plt.subplots(2, 1, sharex=True)
@@ -84,6 +84,7 @@ for i in range(1, 2000):
 
 # считаем массив кватернионов для каждого момента времени
 quat = [ahrs.quaternion]
+angels = []
 for index in range(firstIndex, len(frame['time']) + firstIndex):
     if frame['stationary'][index] == 1:
         ahrs.beta = 0.5
@@ -93,7 +94,7 @@ for index in range(firstIndex, len(frame['time']) + firstIndex):
     gyro = [frame['w_x'][index], frame['w_y'][index], frame['w_z'][index]]
     acc = [frame['a_x'][index], frame['a_y'][index], frame['a_z'][index]]
     ahrs.update_imu(np.deg2rad(gyro), acc)
-
+    angels.append(180/3.14 * np.rad2deg(ahrs.quaternion.to_euler123()[2]))
     quat.append(ahrs.quaternion)
 
     # преобразуем ускорение к с.к. связанной с землёй
@@ -212,6 +213,15 @@ coord.plot(t, z, label='z', linewidth=0.5)
 coord.set_title('coordinates')
 coord.set_xlabel('discrete time')
 coord.legend()
+plt.tight_layout()
+
+fig4, (pitch) = plt.subplots(1, 1, sharex=True)
+t = range(len(frame['a_x']))
+pitch.plot(t, angels, label='yaw', linewidth=0.5)
+pitch.set_title('yaw angle')
+pitch.set_xlabel('discrete time')
+pitch.set_ylabel('degree angle')
+pitch.legend()
 plt.tight_layout()
 
 plt.show()

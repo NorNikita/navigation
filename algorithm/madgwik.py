@@ -4,6 +4,7 @@ from numpy.linalg import norm
 from quaternion import Quaternion
 
 
+""" AHRS - Attitude and Heading Reference Systems"""
 class MadgwickAHRS:
     samplePeriod = 1/256
     quaternion = Quaternion(1, 0, 0, 0)
